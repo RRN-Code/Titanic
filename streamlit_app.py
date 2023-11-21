@@ -204,5 +204,5 @@ with st.container():
 # Load Animation
 with st.container():
     # JSON url
-    lottie_bye = load_lottieurl("https://lottie.host/7f042856-3fe4-48e3-9b45-232c4f2cd174/CKVIIZ9Dsr.json")
+    lottie_bye = load_lottieurl("https://lottie.host/7381af27-2fa5-46d6-bcb7-1551561923b7/pstRlCQAJN.json")
     st_lottie(lottie_bye, key='bye', speed=1, width=350, height=350)
