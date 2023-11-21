@@ -45,7 +45,7 @@ with st.container():
         st.subheader("Conhecendo o Dataset")
     with col2:
         # JSON url
-        lottie_start = load_lottieurl("https://lottie.host/9b4045d8-e11d-4d90-8077-d770364ed7a9/vyLDqCjYI9.json")
+        lottie_start = load_lottieurl("https://lottie.host/62af8624-441a-4f12-9d47-1cc595d93619/quGbKnxaJW.json")
         st_lottie(lottie_start, key='start', speed=1, width=350, height=350)
 
 with st.container():
@@ -120,7 +120,9 @@ with st.container():
     tit['Sexo'] = tit['Sexo'].replace('male', 'Homem')
     st.code("tit['Sexo'] = tit['Sexo'].replace('female', 'Mulher')")
     st.code("tit['Sexo'] = tit['Sexo'].replace('male', 'Homem')")
-    st.write(tit.head())
+    selected_sexo = st.selectbox("Qual sexo você gostaria de selecionar?",
+                 pd.Series(tit['Sexo'].unique()).sort_values(ascending=True).tolist())
+    st.write(tit[tit['Sexo'] == selected_sexo].head())
     st.markdown("")
 
 
