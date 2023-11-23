@@ -121,8 +121,11 @@ with st.container():
     st.code("tit['Sexo'] = tit['Sexo'].replace('female', 'Mulher')")
     st.code("tit['Sexo'] = tit['Sexo'].replace('male', 'Homem')")
     selected_sexo = st.selectbox("Qual sexo você gostaria de selecionar?",
-                 pd.Series(tit['Sexo'].unique()).sort_values(ascending=True).tolist())
-    st.write(tit[tit['Sexo'] == selected_sexo].head())
+                 ["Ambos"]+ pd.Series(tit['Sexo'].unique()).sort_values(ascending=True).tolist())
+    if selected_sexo == "Ambos":
+        st.write(tit[["Classe","Idade","Tarifa"]].describe())
+    else:
+        st.write(tit[["Classe","Idade","Tarifa"]][tit['Sexo'] == selected_sexo].describe())
     st.markdown("")
 
 
@@ -136,33 +139,56 @@ with col6:
 
 with st.container():
     st.subheader("9 - Quantas mulheres e quantos homems estavam à bordo, de acordo com o dataset?")
-    st.code("tit['Sexo'].value_counts()")
+    st.code("passageiros = tit['Sexo'].value_counts()")
+    st.code("mulheres = passageiros.loc['Mulher']")
+    st.code("homem = passageiros.loc['Homem']")
+    passageiros = tit['Sexo'].value_counts()
+    mulheres = passageiros.loc["Mulher"]
+    homem = passageiros.loc["Homem"]
     st.write(tit['Sexo'].value_counts())
+    st.write(f"Havia {mulheres} mulheres e {homem} homens no Titanic.")
     st.markdown("")
     st.subheader("10 - Quantos passageiros sobreviveram e quantos não sobreviveram?")
     st.code("tit['Sobreviveu'].value_counts()")
     st.write(tit['Sobreviveu'].value_counts())
     st.markdown("")
     st.subheader("11 - Quantas mulheres não sobreviveram?")
-    st.code("tit.groupby('Sexo')['Sobreviveu'].value_counts()")
+    st.code("sobreviventes = tit.groupby('Sexo')['Sobreviveu'].value_counts()")
+    st.code("resposta11 = sobreviventes.loc['Mulher', 'Não']")
+    mulheres_mortas = tit.groupby('Sexo')['Sobreviveu'].value_counts()
     st.write(tit.groupby('Sexo')['Sobreviveu'].value_counts())
+    resposta11 = mulheres_mortas.loc['Mulher', 'Não']
+    st.write(f"{resposta11} mulheres não sobreviveram.")
     st.markdown("")
     st.subheader("12 - Proporcionalmente, sobreviveram mais homens ou mais mulheres? Cite as proporções.")
-    st.code("tit.groupby('Sexo')['Sobreviveu'].value_counts(normalize= True, ascending= False)")
+    st.code("result = tit.groupby('Sexo')['Sobreviveu'].value_counts(normalize= True, ascending= False)")
+    st.code("homem_sim = result.loc['Homem', 'Sim']")
+    st.code("mulher_sim = result.loc['Mulher', 'Sim']")
     st.write(tit.groupby('Sexo')['Sobreviveu'].value_counts(normalize= True, ascending= False))
+    result = tit.groupby('Sexo')['Sobreviveu'].value_counts(normalize=True, ascending=False)
+    homem_sim = result.loc['Homem', 'Sim']
+    mulher_sim = result.loc['Mulher', 'Sim']
+    st.write(f"Enquanto {homem_sim:.2%} dos homens sobreviveram, a taxa de sobrevivência das mulheres foi de {mulher_sim:.2%}.")
     st.markdown("")
     st.subheader("13 - Levando-se em consideração a idade dos passageiros, qual a idade e quantidade de pessoas com o maior número de mortos?")
     st.code("age_bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]")
     st.code("age_labels = ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90']")
     st.code("tit['Faixa_Etária'] = pd.cut(tit['Idade'], bins=age_bins, labels=age_labels, right=False)")
     st.code("tit_filter = tit[tit['Sobreviveu'] == 'Não']")
-    st.code("tit_filter.groupby('Faixa_Etária').size().reset_index(name='Count')")
+    st.code("faixa_etaria = tit_filter.groupby('Faixa_Etária').size().reset_index(name='Count')")
     age_bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
     age_labels = ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90']
     tit['Faixa_Etária'] = pd.cut(tit['Idade'], bins=age_bins, labels=age_labels, right=False)
     tit_filter = tit[tit['Sobreviveu'] == 'Não']
-    tit_filter.groupby('Faixa_Etária').size().reset_index(name='Count')
-    st.write(tit_filter.groupby('Faixa_Etária').size().reset_index(name='Count'))
+    faixa_etaria = tit_filter.groupby('Faixa_Etária').size().reset_index(name='Count')
+    st.write(faixa_etaria)
+    max_index = faixa_etaria['Count'].idxmax()
+    max_age_group = faixa_etaria.loc[max_index]['Faixa_Etária']
+    max_count = faixa_etaria.loc[max_index]['Count']
+    st.code("max_index = faixa_etaria['Count'].idxmax()")
+    st.code("max_age_group = faixa_etaria.loc[max_index]['Faixa_Etária']")
+    st.code("max_count = faixa_etaria.loc[max_index]['Count']")
+    st.write(f"A faixa etária com o maior número de mortos foi de {max_age_group} com o total de {max_count} vítimas.")
     st.markdown("")
     st.subheader("14 - Qual a média de idade dos homens sobreviventes?")
     st.code("homens_sobreviventes = tit[(tit['Sexo'] == 'Homem') & (tit['Sobreviveu'] == 'Sim')]")
@@ -191,7 +217,7 @@ with st.container():
     st.subheader("18 - Crie um dataframe que demonstre a quantidade de sobreviventes e não sobreviventes, agrupados por sexo e classe.")
     st.code("sexo_classe = tit.groupby(['Sexo', 'Classe'])['Sobreviveu'].value_counts(ascending=False).reset_index(name='Count')")
     sexo_classe = tit.groupby(['Sexo', 'Classe'])['Sobreviveu'].value_counts(ascending=False).reset_index(name='Count')
-    st.write(sexo_classe = tit.groupby(['Sexo', 'Classe'])['Sobreviveu'].value_counts(ascending=False).reset_index(name='Count'))
+    st.write(sexo_classe)
     st.markdown("")
     st.subheader("19 - Dos homens com idade entre 24 e 30 anos quantos da classe 3 sobreviveram? Quantos da classe 2 não sobreviveram?")
     st.code("novo_df = tit[(tit['Sexo'] == 'Homem') & (tit['Idade'] <= 30) & (tit['Idade'] >= 24)]")
